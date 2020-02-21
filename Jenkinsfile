@@ -43,26 +43,6 @@ pipeline {
                 }
             }
         }
-
-        stage("TODO") {
-            when {
-                anyOf {
-                   branch 'master'
-                   branch 'test'
-                   buildingTag()
-               }
-            }
-            steps {
-                script {
-                    job_to_build = "${env.job_location}"
-                    if (env.BRANCH_NAME == 'test') {
-                       job_to_build = "${env.job_location_test}"
-                    }
-                    def job_result = JenkinsBuildJob(job_to_build)
-                    job_result_url = job_result.absoluteUrl
-                }
-            }
-        }
     }
 
     post {
