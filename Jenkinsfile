@@ -43,6 +43,17 @@ pipeline {
                 }
             }
         }
+        
+        stage('Testing') {
+            steps {
+                ToxEnvRun('pytest')
+            }
+            post {
+                success {
+                    HTMLReport('report.html')
+                }
+            }
+        }
     }
 
     post {
