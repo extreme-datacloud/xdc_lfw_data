@@ -19,3 +19,7 @@ requests
 utm
 pandas
 pytest
+datetime
+panda
+datetime
+xmltodict
