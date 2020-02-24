@@ -48,11 +48,6 @@ pipeline {
             steps {
                 ToxEnvRun('pytest')
             }
-            post {
-                success {
-                    HTMLReport('report.html')
-                }
-            }
         }
     }
 
