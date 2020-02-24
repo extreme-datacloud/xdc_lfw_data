@@ -23,3 +23,4 @@ datetime
 panda
 datetime
 xmltodict
+pycopy-weakref
