@@ -52,6 +52,7 @@ pipeline {
                 success {
                     HTMLReport('report.html')
                 }
+            }
         }
     }
 
