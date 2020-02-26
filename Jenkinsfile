@@ -43,13 +43,6 @@ pipeline {
                 }
             }
         }
-        stage("test PythonEnv") {
-            steps {
-                sh 'pip install pytest'
-                sh 'py.test wq_module/tests'
-            }
-        }
-
         stage('Testing') {
             steps {
                 ToxEnvRun('pytest')
