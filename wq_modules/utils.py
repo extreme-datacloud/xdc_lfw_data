@@ -21,18 +21,19 @@ Author: Daniel Garcia Diaz
 Date: May 2018
 """
 
-#Submodules
+# Submodules
 from wq_modules import config
 from wq_modules import metadata_gen
 
-#APIs
-import zipfile, tarfile
+# APIs
+import zipfile
+import tarfile
 import argparse
 import numpy as np
-import os, shutil
+import os
+import shutil
 import json
 import datetime
-import utm
 from netCDF4 import Dataset
 from six import string_types
 
@@ -66,7 +67,7 @@ def valid_date(sd, ed):
 
         return sd, ed
 
-    elif isinstance(sd, string_types) and isinstance(ed, string_types):    
+    elif isinstance(sd, string_types) and isinstance(ed, string_types):
         try:
             sd = datetime.datetime.strptime(sd, "%Y-%m-%d")
             ed = datetime.datetime.strptime(ed, "%Y-%m-%d")
@@ -75,7 +76,7 @@ def valid_date(sd, ed):
             else:
                 msg = "Unsupported date value: '{} or {}'.".format(sd, ed)
                 raise argparse.ArgumentTypeError(msg)
-        except:
+        except Exception:
             msg = "Unsupported format date: '{} or {}'.".format(sd, ed)
             raise argparse.ArgumentTypeError(msg)
     else:
@@ -126,15 +127,6 @@ def valid_action(a):
 
 
 def path_configurations(onedata_mode):
-    """
-    Configure the tree of datasets path depend of onedata mode. 
-    Create the folder and the downloaded_files file.
-
-    Parameters
-    ----------
-    path : datasets path from config file
-    """
-
     file = 'downloaded_files.json'
     list_region = config.regions
 
@@ -159,7 +151,7 @@ def path_configurations(onedata_mode):
         try:
             with open(os.path.join(local_path, file)) as data_file:
                 json.load(data_file)
-        except:
+        except Exception:
             if not (os.path.isdir(local_path)):
                 os.mkdir(local_path)
 
@@ -171,14 +163,17 @@ def path_configurations(onedata_mode):
                 dictionary['Sentinel-2'][region] = []
                 dictionary['Landsat 8'][region] = []
 
-            with open(os.path.join(local_path, 'downloaded_files.json'), 'w') as outfile:
+            with open(os.path.join(
+                      local_path,
+                      'downloaded_files.json'),
+                      'w') as outfile:
                 json.dump(dictionary, outfile)
 
 
 def unzip_tarfile(local_filename, date_path):
 
     tar = tarfile.open(local_filename, "r:gz")
-    tar.extractall(path = date_path)
+    tar.extractall(path=date_path)
     tar.close()
     os.remove(local_filename)
 
@@ -193,7 +188,7 @@ def unzip_zipfile(local_filename, date_path):
 
 def to_onedata(files, region):
 
-    #paths
+    # paths
     onedata_path = config.datasets_path
 
     for file in files:
@@ -201,19 +196,26 @@ def to_onedata(files, region):
         try:
             date_path = files[file]['path']
 
-            print ("    moving {} file to onedata".format(file))
+            print("    moving {} file to onedata".format(file))
             shutil.move(date_path, os.path.join(onedata_path, region))
-            metadata_gen.metadata_gen(file, files[file]['inidate'], files[file]['enddate'], files[file]['region'], files[file]['N'], files[file]['W'], files[file]['params'])
+            metadata_gen.metadata_gen(
+                file,
+                files[file]['inidate'],
+                files[file]['enddate'],
+                files[file]['region'],
+                files[file]['N'],
+                files[file]['W'],
+                files[file]['params'])
 
             shutil.rmtree(date_path, ignore_errors=True)
 
-        except:
-            continue
+        except Exception:
+            pass
 
 
 def clean_temporal_path():
 
-    #path
+    # path
     onedata_path = config.datasets_path
     local_path = config.local_path
     file = 'downloaded_files.json'
@@ -229,45 +231,22 @@ def load_bands(datepath, band_list):
     band_dict = {}
     for b in band_list:
         band = Dataset(os.path.join(datepath, '{}.nc'.format(b)))
-        band_dict[b] = band.variables['Band1'][:] # band array
+        band_dict[b] = band.variables['Band1'][:]  # band array
 
         if 'lat' in band.variables:
 
-            latitude = band.variables['lat'][:] # latitude array
-            longitude = band.variables['lon'][:] # longitude array
+            latitude = band.variables['lat'][:]  # latitude array
+            longitude = band.variables['lon'][:]  # longitude array
 
         elif 'y' in band.variables:
-            latitude = band.variables['y'][:] # latitude array
-            longitude = band.variables['x'][:] # longitude array
+            latitude = band.variables['y'][:]  # latitude array
+            longitude = band.variables['x'][:]  # longitude array
 
         else:
             msg = "NetCDF damaged or impossible to read"
             raise argparse.ArgumentTypeError(msg)
 
-
     return longitude, latitude, band_dict
-
-
-def cut_tiff_image(date_path, region):
-
-    coord = config.regions[region]['coordinates']
-
-    up_left = utm.from_latlon (coord['N'], coord['W'])
-    down_right = utm.from_latlon (coord['S'], coord['E'])
-
-    files = os.listdir(date_path)
-    for f in files:
-        if f.endswith('.TIF'):
-
-            band_path = os.path.join(date_path, f)
-
-            band = f.split('_')[-1]
-            new_band_path = os.path.join(date_path, band)
-
-            os.system('gdal_translate -projwin {} {} {} {} {} {}'.format(up_left[0], up_left[1], down_right[0], down_right[1], band_path, new_band_path))
-
-            if os.path.isfile(new_band_path):
-                os.remove(band_path)
 
 
 def tiff_to_netcdf(date_path):
@@ -280,7 +259,9 @@ def tiff_to_netcdf(date_path):
             name = f.split('.')[0]
             netcdf_path = os.path.join(date_path, '{}.nc'.format(name))
 
-            os.system('gdal_translate -of netCDF {} {}'.format(band_path, netcdf_path))
+            os.system(
+                'gdal_translate -of netCDF {} {}'.format(
+                    band_path, netcdf_path))
 
             if os.path.isfile(netcdf_path):
                 os.remove(band_path)
@@ -291,14 +272,16 @@ def create_netCDF(path, mask, lat, lon, name):
     Sub-function used on: cloud.cloud_mask & water.water_mask
     Create a NetCDF file with mask: clouds, water, ...
     """
-    #create de netCDF4 file
-    ncfile = Dataset(os.path.join(path, "{}.nc".format(name)),"w", format='NETCDF4_CLASSIC') #'w' stands for write
+    # create de netCDF4 file
+    ncfile = Dataset(
+        os.path.join(path, "{}.nc".format(name)),
+        "w", format='NETCDF4_CLASSIC')  # 'w' stands for write
 
     ncfile.createDimension('lat', len(lat))
     ncfile.createDimension('lon', len(lon))
 
     latitude = ncfile.createVariable('lat', 'f4', ('lat',))
-    longitude = ncfile.createVariable('lon', 'f4', ('lon',))  
+    longitude = ncfile.createVariable('lon', 'f4', ('lon',))
     Band1 = ncfile.createVariable('Band1', 'f4', ('lat', 'lon'))
 
     ncfile.description = "mask"
@@ -307,7 +290,7 @@ def create_netCDF(path, mask, lat, lon, name):
 
     latitude[:] = lat
     longitude[:] = lon
-    Band1[:,:] = mask
+    Band1[:, :] = mask
 
     ncfile.close
 

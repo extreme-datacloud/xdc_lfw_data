@@ -15,100 +15,70 @@
 # under the License.
 
 import requests
-import json
-import csv
+import sys
 from datetime import datetime
 import xml.etree.cElementTree as ET
 from wq_modules import metadata_gen
 from wq_modules import config
 
+
 def get_oai_metadata_formats(url):
-    """Lists the available metadata formats
-        Parameters
-        ----------
-        url : string
-            OAI-PMH endpoint url
-        Returns
-        -------
-        metadata_formats : 
-            Name of the downloaded file(s).
-    """
     metadata_formats = []
     oai_verb = '?verb=ListMetadataFormats'
-    oai = requests.get(url + oai_verb) #Peticion al servidor
+    oai = requests.get(url + oai_verb)  # Peticion al servidor
     xmlTree = ET.ElementTree(ET.fromstring(oai.text))
     iterator = xmlTree.iter()
     for elem in iterator:
-        if (elem.tag == '{http://www.openarchives.org/OAI/2.0/}metadataPrefix'):
+        if (elem.tag == '{http://www.openarchives.org' +
+                + '/OAI/2.0/}metadataPrefix'):
             metadata_formats.append(elem.text)
     return metadata_formats
 
-def search_dataset(url,oai_set,metadata_format):
-    """Search the datasets identifiers in the defined set
-        Parameters
-        ----------
-        url : string
-            OAI-PMH endpoint url
-        oai_set : string
-            OAI-PMH set where the datasets will be searched
-        metadata_format : string
-            Selected metadata format to search
-        Returns
-        -------
-        dataset_ids : array 
-            Dataset IDs
-    """
-    #Define bounds to search in specific set
-    bounds = "&set="+oai_set
-    oai = requests.get(url+'?verb=ListRecords&metadataPrefix='+metadata_format+bounds)
+
+def search_dataset(url, oai_set, metadata_format):
+    # Define bounds to search in specific set
+    bounds = "&set=" + oai_set
+    oai = requests.get(
+        url + '?verb=ListRecords&metadataPrefix=' +
+        + metadata_format + bounds)
 
     oaiTree = ET.ElementTree(ET.fromstring(oai.text.encode('utf-8')))
-    item = oaiTree.findall('.//{http://datacite.org/schema/kernel-3}identifier')
+    item = oaiTree.findall(
+        './/{http://datacite.org/schema/kernel-3}identifier')
     return item
-    
-def check_dataset(ids,api_url,start_date,end_date,region,dataset_path):
-    """Checks if the available datasets satisfy the dates and location req
-        Parameters
-        ----------
-        ids : array
-            List of dataset ids
-        api_url : string
-            API to get dataset metadata
-        start_date : datetime
-            Start date time to search the dataset
-        end_date : datetime
-            End date time to search the dataset
-        location : string
-            Region to get the data from
-        Returns
-        -------
-        downloaded_datasets : array 
-            List of downloaded datasets
-    """
+
+
+def check_dataset(ids, api_url, start_date, end_date, region, dataset_path):
     file_list = []
     for i in ids:
         headers = {'accept': 'application/json'}
-        #TODO Manage different types of identifiers (i.text.replace('record', 'api/records'),headers))
-        r = requests.get('https://doi.org/'+i.text,headers)
-        r = requests.get(r.url.replace('record', 'api/records'),headers)
-        beginDate=''
-        endDate=''
-        location=''
+        # TODO Manage different types of identifiers
+        # (i.text.replace('record', 'api/records'),headers))
+        r = requests.get('https://doi.org/' + i.text, headers)
+        r = requests.get(r.url.replace('record', 'api/records'), headers)
+        beginDate = ''
+        endDate = ''
+        location = ''
         try:
             for o in r.json()['metadata']['keywords']:
                 if 'beginDate' in o:
-                    beginDate = o.rsplit(":",1)[1].replace("'","")
+                    beginDate = o.rsplit(":", 1)[1].replace("'", "")
                     print(beginDate)
                 if 'endDate' in o:
-                    endDate = o.rsplit(":",1)[1].replace("'","")
+                    endDate = o.rsplit(":", 1)[1].replace("'", "")
                     print(endDate)
                 if 'location' in o:
-                    location = o.rsplit(":",1)[1].replace("'","")
+                    location = o.rsplit(":", 1)[1].replace("'", "")
                     print(location)
-        except:
+        except Exception:
             print("No Keywords or any other shit")
 
-        if len(beginDate) > 0 and datetime.strptime(beginDate, "%Y-%m-%d") <= start_date and len(endDate) > 0 and datetime.strptime(endDate, "%Y-%m-%d") >= end_date and len(location) > 0 and location == region:
+        if len(beginDate) > 0 and \
+           datetime.strptime(beginDate, "%Y-%m-%d") <= start_date and \
+           len(endDate) > 0 and \
+           datetime.strptime(endDate, "%Y-%m-%d") >= end_date and \
+           len(location) > 0 and \
+           location == region:
             for u in r.json()['files']:
                 if u['type'] == 'csv':
                     print(u['links']['self'])
@@ -119,7 +89,7 @@ def check_dataset(ids,api_url,start_date,end_date,region,dataset_path):
                         response = requests.get(link, stream=True)
                         total_length = response.headers.get('content-length')
 
-                        if total_length is None: # no content length header
+                        if total_length is None:  # no content length header
                             f.write(response.content)
                         else:
                             dl = 0
@@ -128,27 +98,35 @@ def check_dataset(ids,api_url,start_date,end_date,region,dataset_path):
                                 dl += len(data)
                                 f.write(data)
                                 done = int(50 * dl / total_length)
-                                sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
+                                sys.stdout.write("\r[%s%s]" % (
+                                    '=' * done,
+                                    ' ' * (50 - done)))
                                 sys.stdout.flush()
                     file_list.append(file_name)
-                    print("Download complete")     
-                    #Get Latitude, Longitude
+                    print("Download complete")
+                    # Get Latitude, Longitude
                     coords = config.regions['regions'][region]
                     lon = 0
                     for l in coords:
                         lon = lon + l[0]
-                        lon = lon/len(coords)
+                        lon = lon / len(coords)
                         lat = 0
                     for l in coords:
                         lat = lat + l[1]
-                        lat = lat/len(coords)
-                    print("Lat: %s Lon: %s" % (lat,lon))
-                                
-                    #Metadata attachment
-                    #TODO add wind, prec
+                        lat = lat / len(coords)
+                    print("Lat: %s Lon: %s" % (lat, lon))
+                    # Metadata attachment
+                    # TODO add wind, prec
                     print("Attaching Metadata for %s" % file_name)
-                    metadata_gen.metadata_gen(u["key"],beginDate,endDate,region,str(lat),str(lon),["ID","Date","Temp"])
+                    metadata_gen.metadata_gen(
+                        u["key"],
+                        beginDate, endDate,
+                        region,
+                        str(lat), str(lon),
+                        ["ID", "Date", "Temp"])
     return file_list
+
+
 def get_dataset(start_date, end_date, region):
     """Coordinate data model.
         Parameters
@@ -164,26 +142,38 @@ def get_dataset(start_date, end_date, region):
         output : json
             Name of the downloaded file(s).
     """
-    #onedata mode
+    # onedata mode
     if (config.onedata_mode == 1):
-        datasets_path = '/onedata/' + config.onedata_user + '/' + config.onedata_space + config.download_datasets
+        datasets_path = '/onedata/' + \
+            + config.onedata_user + \
+            + '/' + config.onedata_space + \
+            + config.download_datasets
     else:
         datasets_path = '.' + config.download_datasets
-   
-    general_name = datasets_path + '/' + region + '/' + "dataset_"+start_date.strftime('%Y-%m-%d')+"_"+end_date.strftime('%Y-%m-%d')
+    # general_name = datasets_path + \
+    #    + '/' + region + \
+    #    + '/' + \
+    #    + "dataset_" + start_date.strftime('%Y-%m-%d') + \
+    #    + "_" + end_date.strftime('%Y-%m-%d')
 
-    #Searching datasets OAI-PMH
+    # Searching datasets OAI-PMH
     print("Searching datasets OAI-PMH")
     oai_url = 'https://zenodo.org/oai2d'
-    metadata_formats = get_oai_metadata_formats(oai_url) 
+    # metadata_formats = get_oai_metadata_formats(oai_url)
 
-    #TODO hardcoded
+    # TODO hardcoded
     print("Searching Datasets")
     oai_set = 'user-cdp'
-    dataset_list = search_dataset(oai_url,oai_set,'oai_datacite')    
+    dataset_list = search_dataset(oai_url, oai_set, 'oai_datacite')
 
     print("Checking/download Datasets")
     api_url = 'https://doi.org/'
-    file_list = check_dataset(dataset_list,api_url,start_date,end_date,region,datasets_path + region + '/')
+    file_list = check_dataset(
+        dataset_list,
+        api_url,
+        start_date,
+        end_date,
+        region,
+        datasets_path + region + '/')
 
     return {"output": file_list}
