@@ -44,7 +44,8 @@ pipeline {
             }
         }
         stage("test PythonEnv") {
-            withPythonEnv('python3') {
+            steps {
+                ToxEnvRun('pytest')
                 sh 'pip install pytest'
                 sh 'py.test wq_module/tests'
             }
