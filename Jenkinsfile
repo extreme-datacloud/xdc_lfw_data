@@ -45,7 +45,7 @@ pipeline {
         }
         stage('Testing') {
             steps {
-                ToxEnvRun('pytest')
+                ToxEnvRun('testenv')
             }
             post {
                 success {
