@@ -27,11 +27,6 @@ pipeline {
             steps {
                 ToxEnvRun('py36')
             }
-            post {
-                success {
-                    HTMLReport('report.html')
-                }
-            }
         }
         stage('Style analysis: PEP8') {
             steps {
