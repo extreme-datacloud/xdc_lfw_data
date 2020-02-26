@@ -23,7 +23,16 @@ pipeline {
                 checkout scm
             }
         }
-
+        stage('Testing') {
+            steps {
+                ToxEnvRun('py36')
+            }
+            post {
+                success {
+                    HTMLReport('report.html')
+                }
+            }
+        }
         stage('Style analysis: PEP8') {
             steps {
                 ToxEnvRun('pep8')
@@ -40,16 +49,6 @@ pipeline {
                              parserConfigurations: [[parserName: 'PYLint', pattern: '**/flake8.log']],
                              unHealthy: ''
                     //WarningsReport('PYLint') // 'Flake8' fails..., consoleParsers does not produce any report...
-                }
-            }
-        }
-        stage('Testing') {
-            steps {
-                ToxEnvRun('py36')
-            }
-            post {
-                success {
-                    HTMLReport('report.html')
                 }
             }
         }
