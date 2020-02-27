@@ -57,10 +57,9 @@ class Meteo:
 
     def find_station(self):
         conn = http.client.HTTPSConnection(self.api_url)
-        headers = {'cache-control': "no-cache"}
-        url = "/opendata/api/valores/climatologicos/inventarioestaciones/" \
-            + "todasestaciones/?api_key=" + self.credentials
-        conn.request("GET", url, headers=headers)
+        headers = {'cache-control': "no-cache" }
+        print(self.api_url + "/opendata/api/valores/climatologicos/inventarioestaciones/todasestaciones/?api_key=" + self.credentials)
+        conn.request("GET", "/opendata/api/valores/climatologicos/inventarioestaciones/todasestaciones/?api_key=" + self.credentials, headers=headers)
         res = conn.getresponse()
         datosTodasEstaciones = res.read().decode('latin')
         datosTodasEstaciones = json.loads(datosTodasEstaciones)

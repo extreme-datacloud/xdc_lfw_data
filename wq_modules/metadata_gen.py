@@ -190,10 +190,10 @@ def metadata_gen(title, dateIni,
         try:
             token = os.environ['ONECLIENT_AUTHORIZATION_TOKEN']
         except KeyError:
-            token = """MDAxNWxvY2F00aW9uIG9uZXpvbmUKMDAzMGlkZW500aWZpZ
-                    XIgOTAwNGNlNzBiYWQyMTYzYzY1YWY4NTNhZjQyMGJlYWEKMDA
-                    xYWNpZCB00aW1lIDwgMTU4MzkxODYyOQowMDJmc2lnbmF00dXJ
-                    lICmASYmuGx6CSPHwkf3s9pXW2szUqJPBPoFEXIKOZ2L00Cg"""
+            token = ("MDAxNWxvY2F00aW9uIG9uZXpvbmUKMDAzMGlkZW500aWZpZ"
+                     "XIgOTAwNGNlNzBiYWQyMTYzYzY1YWY4NTNhZjQyMGJlYWEKMDA"
+                     "xYWNpZCB00aW1lIDwgMTU4MzkxODYyOQowMDJmc2lnbmF00dXJ"
+                     "lICmASYmuGx6CSPHwkf3s9pXW2szUqJPBPoFEXIKOZ2L00Cg")
         header_json = {'X-Auth-Token': token,
                        'Content-type': 'application/json'}
         try:

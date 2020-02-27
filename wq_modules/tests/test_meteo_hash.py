@@ -9,16 +9,15 @@ import os
 @pytest.fixture
 def supply_params():
     region = 'CdP'
-    sd = datetime.strptime('10-10-2018', "%m-%d-%Y")
-    ed = datetime.strptime('11-11-2018', "%m-%d-%Y")
+    sd = datetime.datetime.strptime('10-10-2018', "%m-%d-%Y")
+    ed = datetime.datetime.strptime('11-11-2018', "%m-%d-%Y")
     params = ["ID", "Date", "Temp"]
     hash_code = '5638736afcb788f5aa377218d1cd1523'
-    api_token = """eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aWxsYXJyakB1b
-                mljYW4uZXMiLCJqdGkiOiJkZDc5ZjVmNy1hODQwLTRiYWQtYmMzZi1
-                jNjI3Y2ZkYmUxNmYiLCJpc3MiOiJBRU1FVCIsImlhdCI6MTUyMDg0N
-                zgyOSwidXNlcklkIjoiZGQ3OWY1ZjctYTg0MC00YmFkLWJjM2YtYzY
-                yN2NmZGJlMTZmIiwicm9sZSI6IiJ9.LMl_cKCtYi3RPwLwO7fJYZMe
-                s-bdMVR91lRFZbUSv84"""
+    api_token = ("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aWxsYXJyakB1bmljYW4uZXMiLC"
+                 "JqdGkiOiJkZDc5ZjVmNy1hODQwLTRiYWQtYmMzZi1jNjI3Y2ZkYmUxNmYiL"
+                 "CJpc3MiOiJBRU1FVCIsImlhdCI6MTUyMDg0NzgyOSwidXNlcklkIjoiZGQ3"
+                 "OWY1ZjctYTg0MC00YmFkLWJjM2YtYzYyN2NmZGJlMTZmIiwicm9sZSI6IiJ"
+                 "9.LMl_cKCtYi3RPwLwO7fJYZMes-bdMVR91lRFZbUSv84")
     api_url = 'opendata.aemet.es'
     return [region, sd, ed, params, hash_code, api_token, api_url]
 
