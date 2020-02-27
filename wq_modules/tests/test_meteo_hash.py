@@ -4,6 +4,8 @@ from wq_modules import config
 import datetime
 import hashlib
 import os
+import requests
+import time
 
 
 @pytest.fixture
@@ -41,3 +43,15 @@ def test_file1_method1(supply_params):
     os.rmdir('datasets/%s' % supply_params[0])
     os.rmdir('datasets')
     assert hash_code == supply_params[4]
+
+
+def test_api_connection(supply_params):
+    start_time = time.time()
+    api_url = supply_params[6]
+    api_token = supply_params[5]
+    url = ("https://" + api_url + "/opendata/api/observacion/convencional"
+           "/mensajes/tipomensaje/temp/?api_key=" + api_token)
+    r = requests.get(url)
+    assert r.status_code == 200
+    total_time = time.time() - start_time
+    assert total_time < 30.0
