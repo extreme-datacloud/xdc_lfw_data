@@ -21,7 +21,16 @@ def supply_params():
                  "OWY1ZjctYTg0MC00YmFkLWJjM2YtYzYyN2NmZGJlMTZmIiwicm9sZSI6IiJ"
                  "9.LMl_cKCtYi3RPwLwO7fJYZMes-bdMVR91lRFZbUSv84")
     api_url = 'opendata.aemet.es'
-    return [region, sd, ed, params, hash_code, api_token, api_url]
+    onedata_token = ("MDAxNWxvY2F00aW9uIG9uZXpvbmUKMDAzMGlkZW500a"
+                     "WZpZXIgOTAwNGNlNzBiYWQyMTYzYzY1YWY4NTNhZjQy"
+                     "MGJlYWEKMDAxYWNpZCB00aW1lIDwgMTU4MzkxODYyOQ"
+                     "owMDJmc2lnbmF00dXJlICmASYmuGx6CSPHwkf3s9pXW"
+                     "2szUqJPBPoFEXIKOZ2L00Cg")
+    headers = {"X-Auth-Token": onedata_token}
+    onedata_prov = "https://oneprovider-cnaf.cloud.cnaf.infn.it"
+    onedata_api = "/api/v3/oneprovider/"
+    return [region, sd, ed, params, hash_code, api_token, api_url,
+            onedata_token, headers, onedata_prov, onedata_api]
 
 
 def file_as_bytes(file):
@@ -55,3 +64,26 @@ def test_api_connection(supply_params):
     assert r.status_code == 200
     total_time = time.time() - start_time
     assert total_time < 30.0
+
+
+def test_metadata_attachment(supply_params):
+    config.onedata_mode = 1
+    config.onedata_token = supply_params[7]
+    config.onedata_url = supply_params[9]
+    config.onedata_api = supply_params[10]
+    os.mkdir('datasets')
+    os.mkdir('datasets/%s' % supply_params[0])
+    config.METEO_API_TOKEN = supply_params[5]
+    config.METEO_API_URL = supply_params[6]
+    m = meteo.Meteo(supply_params[1], supply_params[2], supply_params[0])
+    m.params = supply_params[3]
+    meteo_output = m.get_meteo()
+    file_out = meteo_output['output']
+
+    url = ("https://cloud-90-147-75-163.cloud.ba.infn.it/api/v3"
+           "/oneprovider/metadata/json/" + file_out)
+    r = requests.get(url, headers=supply_params[8])
+    os.remove(meteo_output['output'])
+    os.rmdir('datasets/%s' % supply_params[0])
+    os.rmdir('datasets')
+    assert r.status_code == 200
