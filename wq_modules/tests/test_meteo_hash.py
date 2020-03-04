@@ -27,10 +27,12 @@ def supply_params():
                      "owMDJmc2lnbmF00dXJlICmASYmuGx6CSPHwkf3s9pXW"
                      "2szUqJPBPoFEXIKOZ2L00Cg")
     headers = {"X-Auth-Token": onedata_token}
-    onedata_prov = "https://oneprovider-cnaf.cloud.cnaf.infn.it"
+    onedata_prov = "https://cloud-90-147-75-163.cloud.ba.infn.it"
     onedata_api = "/api/v3/oneprovider/"
+    onedata_space = "LifeWatch"
     return [region, sd, ed, params, hash_code, api_token, api_url,
-            onedata_token, headers, onedata_prov, onedata_api]
+            onedata_token, headers, onedata_prov, onedata_api,
+            onedata_space]
 
 
 def file_as_bytes(file):
@@ -75,13 +77,15 @@ def test_metadata_attachment(supply_params):
     os.mkdir('datasets/%s' % supply_params[0])
     config.METEO_API_TOKEN = supply_params[5]
     config.METEO_API_URL = supply_params[6]
+    # rg = supply_params[0]
+    # ons = supply_params[11]
     m = meteo.Meteo(supply_params[1], supply_params[2], supply_params[0])
     m.params = supply_params[3]
     meteo_output = m.get_meteo()
     file_out = meteo_output['output']
-
-    url = ("https://cloud-90-147-75-163.cloud.ba.infn.it/api/v3"
-           "/oneprovider/metadata/json/" + file_out)
+    file_out = file_out.replace('datasets/', '')
+    url = ("https://cloud-90-147-75-163.cloud.ba.infn.it/api/v3/oneprovider"
+           "/metadata/json/LifeWatch/CdP/temp_2018-10-10_2018-11-11.csv")
     r = requests.get(url, headers=supply_params[8])
     os.remove(meteo_output['output'])
     os.rmdir('datasets/%s' % supply_params[0])

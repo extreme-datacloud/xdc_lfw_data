@@ -20,11 +20,9 @@ import os
 import json
 import requests
 
-from typing import overload
 from wq_modules import config
 
 
-@overload
 def metadata_gen(title, dateIni, dateEnd,
                  geographicDesc, westBounding,
                  eastBounding, northBounding,
@@ -86,10 +84,8 @@ def metadata_gen(title, dateIni, dateEnd,
     tree = ET.ElementTree(eml)
 
     # Escribimos los datos en un archivo or onedata attachement
-
-    tree.write(config.datasets_path + '/' +
-               + geographicDesc + '/' +
-               + title + ".xml",
+    fil = config.datasets_path + '/' + geographicDesc + '/' + title + ".xml"
+    tree.write(fil,
                encoding='UTF-8',
                xml_declaration=True)
     if (config.onedata_mode == 1):
@@ -100,18 +96,14 @@ def metadata_gen(title, dateIni, dateEnd,
         header_json = {'X-Auth-Token': token,
                        'Content-type': 'application/json'}
         try:
-            print(config.onedata_url +
-                  + config.onedata_api +
-                  + 'metadata/' + config.onedata_space +
-                  + '/' + geographicDesc + '/' + title)
-            print(eml_to_json(config.datasets_path +
-                  + '/' + geographicDesc +
-                  + '/' + title + ".xml"))
-            r = requests.put(
-                config.onedata_url +
-                + config.onedata_api + 'metadata/json/' +
-                + config.onedata_space + '/' +
-                + geographicDesc + '/' + title,
+            print("%s%smetadata/json/%s/%s/%s" % (
+                config.onedata_url, config.onedata_api,
+                config.onedata_space, geographicDesc, title))
+            print(eml_to_json("%s/%s/%s.xml" % (
+                config.datasets_path, geographicDesc, title)))
+            r = requests.put("%s%smetadata/json/%s/%s/%s" % (
+                config.onedata_url, config.onedata_api,
+                config.onedata_space, geographicDesc, title),
                 headers=header_json,
                 data=eml_to_json(title + ".xml"))
             print("Metadata attachement: %i" % r.status_code)
@@ -121,7 +113,6 @@ def metadata_gen(title, dateIni, dateEnd,
     print(tree)
 
 
-@overload
 def metadata_gen(title, dateIni,
                  dateEnd, geographicDesc,
                  westBounding, northBounding, params):
@@ -181,9 +172,8 @@ def metadata_gen(title, dateIni,
     tree = ET.ElementTree(eml)
 
     # Escribimos los datos en un archivo or onedata attachement
-    tree.write(config.datasets_path + '/' +
-               + geographicDesc + '/' +
-               + title + ".xml",
+    fil = config.datasets_path + '/' + geographicDesc + '/' + title + ".xml"
+    tree.write(fil,
                encoding='UTF-8',
                xml_declaration=True)
     if (config.onedata_mode == 1):
@@ -197,27 +187,23 @@ def metadata_gen(title, dateIni,
         header_json = {'X-Auth-Token': token,
                        'Content-type': 'application/json'}
         try:
-            print(config.onedata_url +
-                  + config.onedata_api + 'metadata/json/' +
-                  + config.onedata_space + '/' + geographicDesc +
-                  + '/' + title)
-            js = eml_to_json(
-                config.datasets_path + '/' +
-                + geographicDesc + '/' + title + ".xml")
+            print("%s%smetadata/json/%s/%s/%s" % (
+                config.onedata_url, config.onedata_api, config.onedata_space,
+                geographicDesc, title))
+            js = eml_to_json("%s/%s/%s.xml" % (
+                config.datasets_path, geographicDesc, title))
             met = json.loads(js)
             print(json.dumps(met, indent=1, sort_keys=True))
-            r = requests.put(
-                config.onedata_url + config.onedata_api + 'metadata/' +
-                + config.onedata_space +
-                + '/' + geographicDesc + '/' + title,
-                headers=header_json,
-                data=eml_to_json(
-                    config.datasets_path +
-                    + '/' + geographicDesc + '/' + title + ".xml"))
+            xml_pt = config.datasets_path + '/' + geographicDesc + '/'
+            xml_pt = xml_pt + title + ".xml"
+            r = requests.put("%s%smetadata/json/%s/%s/%s" % (
+                config.onedata_url, config.onedata_api, config.onedata_space,
+                geographicDesc, title), headers=header_json,
+                data=eml_to_json(xml_pt))
 
             print("Metadata attachement: %i" % r.status_code)
-            os.remove(config.datasets_path + '/' +
-                      + geographicDesc + '/' + title + ".xml")
+            os.remove("%s/%s/%s.xml" % (
+                config.datasets_path, geographicDesc, title))
         except requests.exceptions.RequestException as e:
             print(e)
     print(tree)
