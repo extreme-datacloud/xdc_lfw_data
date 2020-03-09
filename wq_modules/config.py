@@ -87,6 +87,7 @@ regions = {
     "Alemania": {
         "id": 187392, "coordinates": {
             "W": 9.938, "S": 50.467, "E": 9.978, "N": 50.486}}}
+}
 
 # actions
 keywords = ['cloud_mask', 'cloud_coverage', 'water_mask', 'water_surface']
