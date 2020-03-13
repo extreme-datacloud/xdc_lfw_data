@@ -13,8 +13,7 @@ pipeline {
         author_name = "Fernando Aguilar"
         author_email = "aguilarf@ifca.unican.es"
         app_name = "xdc_lfw_data"
-        job_location = "TODO"
-        job_location_test = "TODO"
+        job_location = "Pipeline-as-code/XDC-wp2/xdc_lfw_frontend/${env.BRANCH_NAME}"
     }
 
     stages {
@@ -31,6 +30,10 @@ pipeline {
         stage('Style analysis: PEP8') {
             steps {
                 ToxEnvRun('pep8')
+                script {
+                    def job_result = JenkinsBuildJob("${env.job_location}")
+                    job_result_url = job_result.absoluteUrl
+                }
             }
             post {
                 always {
@@ -61,7 +64,7 @@ pipeline {
                 def build_status =  currentBuild.result
                 build_status =  build_status ?: 'SUCCESS'
                 def subject = """
-New ${app_name} build in Jenkins@DEEP:\
+New ${app_name} build in Jenkins@XDC:\
 ${build_status}: Job '${env.JOB_NAME}\
 [${env.BUILD_NUMBER}]'"""
 
