@@ -13,22 +13,22 @@ def update_param_value(dic, f1, f2):
         if line[0:line.find('=')] in dic:
             f2.write(line.replace(
                 line,
-                line[0:line.find('=')] + " = " +
+                line[0:line.find('=')] + " = " \
                 + dic[line[0:line.find('=')]]))
         elif line[0:line.find('=') - 1] in dic:
             f2.write(line.replace(
                 line,
-                line[0:line.find('=') - 1] + " = " +
+                line[0:line.find('=') - 1] + " = " \
                 + dic[line[0:line.find('=') - 1]]))
         elif line[0:line.find('=') - 2] in dic:
             f2.write(line.replace(
                 line,
-                line[0:line.find('=') - 2] +
+                line[0:line.find('=') - 2] \
                 + "  = " + dic[line[0:line.find('=') - 2]]))
         elif line[0:line.find('=') - 3] in dic:
             f2.write(line.replace(
                 line,
-                line[0:line.find('=') - 3] + "   = " +
+                line[0:line.find('=') - 3] + "   = " \
                 + dic[line[0:line.find('=') - 3]]))
         else:
             f2.write(line)
@@ -124,11 +124,11 @@ def gen_uniform_output_bct(out_dic, output, ini_date, end_date):
     for e in out_dic:
         f.write("table-name           'Boundary Section : %i'\n" % e)
         f.write("contents             'Logarithmic         '\n")
-        f.write("location             '" +
-                + out_dic[e]['Name'] + "               '\n")
+        f.write("location              %s               '\n" % (
+            out_dic[e]['Name']))
         f.write("time-function        'non-equidistant'\n")
-        f.write("reference-time       " +
-                + ini_date.strftime("%Y%m%d") + "\n")
+        f.write("reference-time        %s\n" % (
+            ini_date.strftime("%Y%m%d")))
         f.write("time-unit            'minutes'\n")
         f.write("interpolation        'linear'\n")
         f.write("parameter            "
@@ -207,11 +207,11 @@ def gen_uniform_output_bcc(out_dic, output, ini_date, end_date):
         if "Salinity" in out_dic[e]:
             f.write("table-name           'Boundary Section : %i'\n" % e)
             f.write("contents             'Uniform         '\n")
-            f.write("location             '" +
-                    + out_dic[e]['Name'] + "               '\n")
+            f.write("location             '%s               '\n" % (
+                out_dic[e]['Name']))
             f.write("time-function        'non-equidistant'\n")
-            f.write("reference-time       " +
-                    + ini_date.strftime("%Y%m%d") + "\n")
+            f.write("reference-time         %s\n" % (
+                ini_date.strftime("%Y%m%d")))
             f.write("time-unit            'minutes'\n")
             f.write("interpolation        'linear'\n")
             f.write("parameter            "
@@ -234,11 +234,11 @@ def gen_uniform_output_bcc(out_dic, output, ini_date, end_date):
         if "Temperature" in out_dic[e]:
             f.write("table-name           'Boundary Section : %i'\n" % e)
             f.write("contents             'Uniform         '\n")
-            f.write("location             '" +
-                    + out_dic[e]['Name'] + "               '\n")
+            f.write("location             '%s               '\n" % (
+                out_dic[e]['Name']))
             f.write("time-function        'non-equidistant'\n")
-            f.write("reference-time       " +
-                    + ini_date.strftime("%Y%m%d") + "\n")
+            f.write("reference-time       %s\n" % (
+                ini_date.strftime("%Y%m%d")))
             f.write("time-unit            'minutes'\n")
             f.write("interpolation        'linear'\n")
             f.write("parameter            "
@@ -268,11 +268,11 @@ def gen_uniform_intput_dis(in_dic, output, ini_date, end_date):
     for e in in_dic:
         f.write("table-name          'Discharge : %i'\n" % e)
         f.write("contents            'walking   '\n")
-        f.write("location            '" +
-                + in_dic[e]['Name'] + "               '\n")
+        f.write("location            '%s               '\n" % (
+            in_dic[e]['Name']))
         f.write("time-function       'non-equidistant'\n")
-        f.write("reference-time       " +
-                + ini_date.strftime("%Y%m%d") + "\n")
+        f.write("reference-time       %s\n" % (
+            ini_date.strftime("%Y%m%d")))
         f.write("time-unit           'minutes'\n")
         f.write("interpolation       'block'\n")
         f.write("parameter           "
@@ -314,11 +314,11 @@ def csv_to_dis(in_dic, output_folder, output_name, ini_date, end_date):
             i = 0
             f.write("table-name          'Discharge : %i'\n" % e)
             f.write("contents            'walking   '\n")
-            f.write("location            '" +
-                    + in_dic[e]['Name'] + "               '\n")
+            f.write("location            '%s               '\n" % (
+                in_dic[e]['Name']))
             f.write("time-function       'non-equidistant'\n")
-            f.write("reference-time       " +
-                    + ini_date.strftime("%Y%m%d") + "\n")
+            f.write("reference-time       %s\n" % (
+                ini_date.strftime("%Y%m%d")))
             f.write("time-unit           'minutes'\n")
             f.write("interpolation       'block'\n")
             f.write("parameter           "
