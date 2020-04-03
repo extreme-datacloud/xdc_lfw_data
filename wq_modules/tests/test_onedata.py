@@ -4,11 +4,12 @@ import requests
 
 @pytest.fixture
 def supply_params():
-    onedata_token = ("MDAxNWxvY2F00aW9uIG9uZXpvbmUKMDAzMGlkZW500a"
-                     "WZpZXIgOTAwNGNlNzBiYWQyMTYzYzY1YWY4NTNhZjQy"
-                     "MGJlYWEKMDAxYWNpZCB00aW1lIDwgMTU4MzkxODYyOQ"
-                     "owMDJmc2lnbmF00dXJlICmASYmuGx6CSPHwkf3s9pXW"
-                     "2szUqJPBPoFEXIKOZ2L00Cg")
+    onedata_token = ("MDAyOGxvY2F00aW9uIG9uZXpvbmUuY2xvdWQuY25hZi"
+                     "5pbmZuLml00CjAwMzBpZGVudGlmaWVyIDk4OTgwNjc1"
+                     "MWU00NjhlZjA1ODZjNzMwZDNjNjVjN2IxCjAwMWFjaW"
+                     "QgdGltZSA8IDE2MTcxNzY1NTkKMDAyZnNpZ25hdHVyZ"
+                     "SChV36AW00frfBqr02CpD3B6SxVXnVMuP8vsHE6yEqJ"
+                     "FsKgo")
     headers = {"X-Auth-Token": onedata_token}
     onezone_url = 'https://onezone.cloud.cnaf.infn.it/api/v3/onezone/user'
     oneprovider_url = ("https://cloud-90-147-75-163.cloud.ba.infn.it/api/"
